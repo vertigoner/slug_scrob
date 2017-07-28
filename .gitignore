@@ -1,2 +1,5 @@
+*.pyc
+*.pyo
+
 lastfm.png
-env.py
+config/env.py
