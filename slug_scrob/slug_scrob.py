@@ -13,11 +13,11 @@ import time
 def authenticate(apiKey, secret):
     # fetch request token
     apiSig = hashlib.md5(('api_key' + apiKey + 'methodauth.getToken' + secret).encode('utf-8')).hexdigest()
-    token = requests.get('http://ws.audioscrobbler.com/2.0/?'
-                         'method=auth.getToken&'
-                         'api_key=' + apiKey + '&'
-                         'api_sig=' + apiSig + '&'
-                         'format=json').json()['token']
+    payload = {'method':'auth.getToken',
+               'api_key':apiKey,
+               'api_sig':apiSig,
+               'format':'json'}
+    token = requests.get('http://ws.audioscrobbler.com/2.0/?', payload).json()['token']
     print('token: ' + token)
 
     # user authentication
@@ -26,15 +26,13 @@ def authenticate(apiKey, secret):
                      'token=' + token), 1)
 
     # fetch web service session
-    apiSig = hashlib.md5(('api_key' + apiKey + 'mhodauth.getSessiontoken' + token + secret).encode('utf-8')).hexdigest()
+    apiSig = hashlib.md5(('api_key' + apiKey + 'methodauth.getSessiontoken' + token + secret).encode('utf-8')).hexdigest()
+    payload['method'] = 'auth.getSession'
+    payload['token'] = token
+    payload['api_sig'] = apiSig
 
     while True:
-        response = requests.get('http://ws.audioscrobbler.com/2.0/?'
-                                'method=auth.getSession&'
-                                'token=' + token + '&'
-                                'api_key=' + apiKey + '&'
-                                'api_sig=' + apiSig + '&'
-                                'format=json').json()
+        response = requests.get('http://ws.audioscrobbler.com/2.0/?', payload).json()
 
         if 'session' in response:
             break
@@ -54,10 +52,10 @@ def authenticate(apiKey, secret):
     return token, sessionKey
 
 
-def getArtistInfo(apiKey, query):
+def getArtistInfo(apiKey, artistName):
     response = requests.get('http://ws.audioscrobbler.com/2.0/?'
-                            'method=artist.getinfo&'
-                            'artist=' + query + '&'
+                            'method=artist.getInfo&'
+                            'artist=' + artistName + '&'
                             'api_key=' + apiKey + '&'
                             'format=json')
 
@@ -82,7 +80,10 @@ if __name__ == '__main__':
     apiKey = os.environ.get('LastApiKey')
     secret = os.environ.get('LastSecret')
 
-    token, sessionKey = authenticate(apiKey, secret)
+    try:
+        token, sessionKey = authenticate(apiKey, secret)
+    except TypeError:
+        sys.exit()
 
     artistInfo = getArtistInfo(apiKey, sys.argv[1])
     print()
