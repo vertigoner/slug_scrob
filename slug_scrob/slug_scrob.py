@@ -60,7 +60,6 @@ def scrobble(apiKey, secret, sessionKey, artist, track):
                'track':track,
                'timestamp':timestamp,
                'api_key':apiKey,
-               'secret':secret,
                'sk':sessionKey}
 
     sigStr = ''
