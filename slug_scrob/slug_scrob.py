@@ -76,7 +76,16 @@ def scrobble(apiKey, secret, sessionKey, artist, track):
 
     response = requests.post('http://ws.audioscrobbler.com/2.0/', payload)
 
-    print(str(response.json()))
+    if response.status_code == 200:
+        response = response.json()
+    else:
+        print("Response status code: " + str(response.status_code))
+    if :
+        print('Error fetching session:')
+                print('     Error ' + str(response['error']) + ': ' + response['message'])
+
+
+    print(str(response))
 
 
 def getArtistInfo(apiKey, artist):
@@ -104,7 +113,6 @@ def getArtistInfo(apiKey, artist):
 
 def md5(text):
     h = hashlib.md5(format_unicode(text).encode("utf-8"))
-
     return h.hexdigest()
 
 
