@@ -9,6 +9,7 @@ import json
 import hashlib
 import webbrowser
 import time
+import six
 
 def authenticate(apiKey, secret):
     # fetch request token
@@ -52,10 +53,36 @@ def authenticate(apiKey, secret):
     return token, sessionKey
 
 
-def getArtistInfo(apiKey, artistName):
+def scrobble(apiKey, secret, sessionKey, artist, track):
+    timestamp = str(int(time.time()))
+    payload = {'method':'track.scrobble',
+               'artist':artist,
+               'track':track,
+               'timestamp':timestamp,
+               'api_key':apiKey,
+               'secret':secret,
+               'sk':sessionKey}
+
+    sigStr = ''
+    for key in sorted(payload):
+        sigStr += key + payload[key]
+
+    sigStr += secret
+    apiSig = md5(sigStr)
+
+    payload['api_sig'] = apiSig
+    payload['format'] = 'json'
+
+
+    response = requests.post('http://ws.audioscrobbler.com/2.0/', payload)
+
+    print(str(response.json()))
+
+
+def getArtistInfo(apiKey, artist):
     response = requests.get('http://ws.audioscrobbler.com/2.0/?'
                             'method=artist.getInfo&'
-                            'artist=' + artistName + '&'
+                            'artist=' + artist + '&'
                             'api_key=' + apiKey + '&'
                             'format=json')
 
@@ -75,6 +102,20 @@ def getArtistInfo(apiKey, artistName):
         return {'status':'failure'}
 
 
+def md5(text):
+    h = hashlib.md5(format_unicode(text).encode("utf-8"))
+
+    return h.hexdigest()
+
+
+def format_unicode(text):
+    if isinstance(text, six.binary_type):
+        return six.text_type(text, "utf-8")
+    elif isinstance(text, six.text_type):
+        return text
+    else:
+        return six.text_type(text)
+
 
 if __name__ == '__main__':
     apiKey = os.environ.get('LastApiKey')
@@ -84,6 +125,8 @@ if __name__ == '__main__':
         token, sessionKey = authenticate(apiKey, secret)
     except TypeError:
         sys.exit()
+
+    scrobble(apiKey, secret, sessionKey, sys.argv[1], sys.argv[2])
 
     artistInfo = getArtistInfo(apiKey, sys.argv[1])
     print()
