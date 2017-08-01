@@ -8,7 +8,7 @@ THRESHOLD = 2500
 RATE = 44100
 RECORD_SECONDS = 20
 # SILENCE_LIMIT = 1
-FILENAME = "input.wav"
+FILENAME = "vars/input.wav"
 
 
 

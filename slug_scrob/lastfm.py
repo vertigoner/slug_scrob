@@ -23,7 +23,7 @@ class lastfm():
         except FileNotFoundError:
             self.username, self.sessionKey = self.authenticate()
             pCont = {'LastUser':self.username, 'LastSessionKey':self.sessionKey}
-            pickle.dump(pCont, open('save.p', 'wb'))
+            pickle.dump(pCont, open('vars/save.p', 'wb'))
 
         if self.apiKey == None or self.secret == None:
             print('Please set your API Key and secret (obtained from last.fm) in config/env.py')
