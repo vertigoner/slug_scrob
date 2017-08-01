@@ -9,13 +9,12 @@ import six
 
 def authenticate(apiKey, secret):
     # fetch request token
-    apiSig = hashlib.md5(('api_key' + apiKey + 'methodauth.getToken' + secret).encode('utf-8')).hexdigest()
     payload = {'method':'auth.getToken',
-               'api_key':apiKey,
-               'api_sig':apiSig,
-               'format':'json'}
+               'api_key':apiKey}
+    payload['api_sig'] = genApiSig(payload, secret)
+    payload['format'] = 'json'
+
     token = requests.get('http://ws.audioscrobbler.com/2.0/?', payload).json()['token']
-    print('token: ' + token)
 
     # user authentication
     webbrowser.open(('http://www.last.fm/api/auth/?'
@@ -23,10 +22,12 @@ def authenticate(apiKey, secret):
                      'token=' + token), 1)
 
     # fetch web service session
-    apiSig = hashlib.md5(('api_key' + apiKey + 'methodauth.getSessiontoken' + token + secret).encode('utf-8')).hexdigest()
     payload['method'] = 'auth.getSession'
     payload['token'] = token
-    payload['api_sig'] = apiSig
+    del payload['api_sig']
+    del payload['format']
+    payload['api_sig'] = genApiSig(payload, secret)
+    payload['format'] = 'json'
 
     while True:
         response = requests.get('http://ws.audioscrobbler.com/2.0/?', payload).json()
@@ -45,7 +46,7 @@ def authenticate(apiKey, secret):
     sessionKey = response['session']['key']
 
     print('username: ' + username)
-    print('sessionKey: ' + sessionKey)
+    print('sk: ' + sessionKey)
 
     return username, sessionKey
 
@@ -78,12 +79,15 @@ def scrobble(apiKey, secret, sessionKey, artist, track):
     
 
 
-def getArtistInfo(apiKey, artist):
-    response = requests.get('http://ws.audioscrobbler.com/2.0/?'
-                            'method=artist.getInfo&'
-                            'artist=' + artist + '&'
-                            'api_key=' + apiKey + '&'
-                            'format=json')
+def getArtistInfo(apiKey, artist, secret):
+    payload = {'method':'artist.getInfo',
+               'artist':artist,
+               'api_key':apiKey}
+
+    payload['api_sig'] = genApiSig(payload, secret)
+    payload['format'] = 'json'
+
+    response = requests.get('http://ws.audioscrobbler.com/2.0/?', payload)
 
     if response.status_code == 200:
         response = response.json()

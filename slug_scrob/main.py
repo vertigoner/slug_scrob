@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     scrobble(apiKey, secret, sessionKey, sys.argv[1], sys.argv[2])
 
-    artistInfo = getArtistInfo(apiKey, sys.argv[1])
+    artistInfo = getArtistInfo(apiKey, sys.argv[1], secret)
     print()
     print('Name: ' + artistInfo['name'])
     print('Listeners: ' + artistInfo['listeners'])
