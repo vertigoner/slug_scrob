@@ -1,9 +1,5 @@
 import sys
 import os
-
-sys.path.append(os.path.abspath('./../config'))
-
-from env import *
 import requests
 import json
 import hashlib
@@ -47,10 +43,11 @@ def authenticate(apiKey, secret):
 
     username = response['session']['name']
     sessionKey = response['session']['key']
+
     print('username: ' + username)
     print('sessionKey: ' + sessionKey)
 
-    return token, sessionKey
+    return username, sessionKey
 
 
 def scrobble(apiKey, secret, sessionKey, artist, track):
@@ -124,22 +121,3 @@ def format_unicode(text):
         return text
     else:
         return six.text_type(text)
-
-
-if __name__ == '__main__':
-    apiKey = os.environ.get('LastApiKey')
-    secret = os.environ.get('LastSecret')
-
-    try:
-        token, sessionKey = authenticate(apiKey, secret)
-    except TypeError:
-        sys.exit()
-
-    scrobble(apiKey, secret, sessionKey, sys.argv[1], sys.argv[2])
-
-    artistInfo = getArtistInfo(apiKey, sys.argv[1])
-    print()
-    print('Name: ' + artistInfo['name'])
-    print('Listeners: ' + artistInfo['listeners'])
-    print('Play Count: ' + artistInfo['playcount'])
-    print('Bio: ' + artistInfo['bio'])
