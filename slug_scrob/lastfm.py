@@ -59,14 +59,7 @@ def scrobble(apiKey, secret, sessionKey, artist, track):
                'api_key':apiKey,
                'sk':sessionKey}
 
-    sigStr = ''
-    for key in sorted(payload):
-        sigStr += key + payload[key]
-
-    sigStr += secret
-    apiSig = md5(sigStr)
-
-    payload['api_sig'] = apiSig
+    payload['api_sig'] = genApiSig(payload, secret)
     payload['format'] = 'json'
 
 
@@ -83,7 +76,6 @@ def scrobble(apiKey, secret, sessionKey, artist, track):
     else:
         print("Response status code: " + str(response.status_code))
     
-
 
 
 def getArtistInfo(apiKey, artist):
@@ -109,12 +101,21 @@ def getArtistInfo(apiKey, artist):
         return {'status':'failure'}
 
 
+def genApiSig(dataToHash, secret):
+    sigStr = ''
+    for key in sorted(dataToHash):
+        sigStr += key + dataToHash[key]
+
+    sigStr += secret
+    return md5(sigStr)
+
+
 def md5(text):
-    h = hashlib.md5(format_unicode(text).encode("utf-8"))
+    h = hashlib.md5(formatUnicode(text).encode("utf-8"))
     return h.hexdigest()
 
 
-def format_unicode(text):
+def formatUnicode(text):
     if isinstance(text, six.binary_type):
         return six.text_type(text, "utf-8")
     elif isinstance(text, six.text_type):
