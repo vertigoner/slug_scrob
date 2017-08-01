@@ -75,6 +75,28 @@ class lastfm():
         return username, sessionKey
 
 
+    def updateNowPlaying(self, artist, track):
+
+        payload = {'method':'track.updateNowPlaying',
+                   'artist':artist,
+                   'track':track,
+                   'api_key':self.apiKey,
+                   'sk':self.sessionKey}
+
+        payload['api_sig'] = self.genApiSig(payload)
+        payload['format'] = 'json'
+
+        response = requests.post('http://ws.audioscrobbler.com/2.0/', payload)
+
+        if response.status_code == 200:
+            if 'error' in response:
+                response = response.json()
+                print('Error fetching session:')
+                print('     Error ' + str(response['error']) + ': ' + response['message'])
+        else:
+            print("Response status code: " + str(response.status_code))
+
+
     def scrobble(self, artist, track):
 
         timestamp = str(int(time.time()))
@@ -88,17 +110,13 @@ class lastfm():
         payload['api_sig'] = self.genApiSig(payload)
         payload['format'] = 'json'
 
-
         response = requests.post('http://ws.audioscrobbler.com/2.0/', payload)
 
         if response.status_code == 200:
             if 'error' in response:
+                response = response.json()
                 print('Error fetching session:')
                 print('     Error ' + str(response['error']) + ': ' + response['message'])
-
-            response = response.json()
-            print(str(response))
-
         else:
             print("Response status code: " + str(response.status_code))
         
