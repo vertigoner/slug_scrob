@@ -1,6 +1,5 @@
 import sys
 import os
-import pickle
 
 sys.path.append(os.path.abspath('./../config'))
 

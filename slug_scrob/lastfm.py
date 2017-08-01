@@ -141,6 +141,8 @@ class lastfm():
         return md5(sigStr)
 
 
+# HELPER FUNCTIONS
+
 def md5(text):
     h = hashlib.md5(formatUnicode(text).encode("utf-8"))
     return h.hexdigest()
