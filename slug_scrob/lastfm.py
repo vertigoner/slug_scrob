@@ -41,9 +41,9 @@ class lastfm():
         token = requests.get('http://ws.audioscrobbler.com/2.0/?', payload).json()['token']
 
         # user authentication
-        webbrowser.open(('http://www.last.fm/api/auth/?'
+        webbrowser.open('http://www.last.fm/api/auth/?'
                          'api_key=' + self.apiKey + '&'
-                         'token=' + token), 1)
+                         'token=' + token)
 
         # fetch web service session
         payload['method'] = 'auth.getSession'
