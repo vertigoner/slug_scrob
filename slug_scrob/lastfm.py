@@ -17,15 +17,15 @@ class lastfm():
         self.secret = os.environ.get('LastSecret')
 
         try:
-            pCont = pickle.load(open('save.p', 'rb'))
+            pCont = pickle.load(open('vars/save.p', 'rb'))
             self.username = pCont['LastUser']
             self.sessionKey = pCont['LastSessionKey']
-        except FileNotFoundError:
+        except EnvironmentError:
             self.username, self.sessionKey = self.authenticate()
             pCont = {'LastUser':self.username, 'LastSessionKey':self.sessionKey}
             pickle.dump(pCont, open('vars/save.p', 'wb'))
 
-        if self.apiKey == None or self.secret == None:
+        if self.apiKey == "<YOUR API KEY>" or self.secret == "<YOUR SECRET>":
             print('Please set your API Key and secret (obtained from last.fm) in config/env.py')
             sys.exit()
 
